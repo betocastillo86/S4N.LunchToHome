@@ -14,12 +14,17 @@ namespace S4N.LunchToHome.Domain.ValueObjects
 
         public static Route CreateRoute(string path)
         {
-            if (string.IsNullOrEmpty(path) || !Regex.IsMatch(path, "^[AID]+$"))
+            if (!IsValidPath(path))
             {
                 throw new InvalidPathException(path);
             }
 
             return new Route(path);
+        }
+
+        public static bool IsValidPath(string path)
+        {
+            return !string.IsNullOrEmpty(path) && Regex.IsMatch(path, "^[AID]+$");
         }
     }
 }

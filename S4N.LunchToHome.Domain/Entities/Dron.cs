@@ -2,7 +2,7 @@
 
 namespace S4N.LunchToHome.Domain.Entities
 {
-    public class Dron : BaseEntity
+    public class Drone : BaseEntity
     {
         public Position CurrentPosition { get; set; }
     }
