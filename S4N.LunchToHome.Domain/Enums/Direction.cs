@@ -1,4 +1,4 @@
-﻿namespace S4N.LuchToHome.Domain.Enums
+﻿namespace S4N.LunchToHome.Domain.Enums
 {
     public enum Direction
     {

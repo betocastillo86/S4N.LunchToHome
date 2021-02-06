@@ -1,4 +1,4 @@
-﻿namespace S4N.LuchToHome.Domain.Entities
+﻿namespace S4N.LunchToHome.Domain.Entities
 {
     public class BaseEntity
     {

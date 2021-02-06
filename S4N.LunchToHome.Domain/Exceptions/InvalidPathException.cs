@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace S4N.LuchToHome.Domain.Exceptions
+namespace S4N.LunchToHome.Domain.Exceptions
 {
     public class InvalidPathException : Exception
     {

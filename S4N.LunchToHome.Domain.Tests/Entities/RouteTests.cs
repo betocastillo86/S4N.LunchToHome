@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
-using S4N.LuchToHome.Domain.Exceptions;
-using S4N.LuchToHome.Domain.ValueObjects;
+using S4N.LunchToHome.Domain.Exceptions;
+using S4N.LunchToHome.Domain.ValueObjects;
 
 namespace S4N.LunchToHome.Domain.Tests.Entities
 {

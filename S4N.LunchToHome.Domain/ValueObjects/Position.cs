@@ -1,6 +1,6 @@
-﻿using S4N.LuchToHome.Domain.Enums;
+﻿using S4N.LunchToHome.Domain.Enums;
 
-namespace S4N.LuchToHome.Domain.ValueObjects
+namespace S4N.LunchToHome.Domain.ValueObjects
 {
     public class Position
     {

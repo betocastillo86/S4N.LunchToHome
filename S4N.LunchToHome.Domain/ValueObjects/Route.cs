@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-using S4N.LuchToHome.Domain.Exceptions;
+using S4N.LunchToHome.Domain.Exceptions;
 
-namespace S4N.LuchToHome.Domain.ValueObjects
+namespace S4N.LunchToHome.Domain.ValueObjects
 {
     public class Route
     {

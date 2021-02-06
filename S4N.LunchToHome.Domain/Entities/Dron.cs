@@ -1,6 +1,6 @@
-﻿using S4N.LuchToHome.Domain.ValueObjects;
+﻿using S4N.LunchToHome.Domain.ValueObjects;
 
-namespace S4N.LuchToHome.Domain.Entities
+namespace S4N.LunchToHome.Domain.Entities
 {
     public class Dron : BaseEntity
     {

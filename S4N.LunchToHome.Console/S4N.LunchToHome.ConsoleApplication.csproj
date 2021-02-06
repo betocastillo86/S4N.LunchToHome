@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyName>S4N.LuchToHome.ConsoleApplication</AssemblyName>
+    <AssemblyName>S4N.LunchToHome.ConsoleApplication</AssemblyName>
   </PropertyGroup>
 
 </Project>

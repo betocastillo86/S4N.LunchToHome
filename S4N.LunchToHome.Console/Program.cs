@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace S4N.LuchToHome.ConsoleApplication
+namespace S4N.LunchToHome.ConsoleApplication
 {
     internal class Program
     {
