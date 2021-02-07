@@ -5,6 +5,7 @@ using FluentValidation.TestHelper;
 using Moq;
 using NUnit.Framework;
 using S4N.LunchToHome.Application.Common;
+using S4N.LunchToHome.Application.Common.Settings;
 using S4N.LunchToHome.Application.Deliveries.Commands.CreateDelivery;
 using S4N.LunchToHome.Application.Deliveries.Models;
 using S4N.LunchToHome.Domain.Entities;
@@ -20,7 +21,11 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
 
         private IList<Drone> drones;
 
-        private Mock<IRepository<Drone>> droneRepository = new Mock<IRepository<Drone>>();
+        private Mock<IRepository<Drone>> droneRepository;
+
+        private Mock<IGeneralSettings> generalSettings;
+
+        private int maxRoutes = 3;
 
         [SetUp]
         public void SetUp()
@@ -28,13 +33,17 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
             this.drones = new List<Drone>();
 
             this.droneRepository = new Mock<IRepository<Drone>>();
-
-            this.validator = new CreateDeliveryCommandValidator(this.droneRepository.Object);
-
-            this.model = new CreateDeliveryCommand();
+            this.generalSettings = new Mock<IGeneralSettings>();
 
             this.droneRepository.SetupGet(c => c.Items)
                 .Returns(() => this.drones.AsQueryable());
+
+            this.generalSettings.SetupGet(c => c.MaxRoutesPerDrone)
+                .Returns(() => this.maxRoutes);
+
+            this.validator = new CreateDeliveryCommandValidator(this.droneRepository.Object, this.generalSettings.Object);
+
+            this.model = new CreateDeliveryCommand();
         }
 
         [Test]
@@ -88,6 +97,32 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
             var result = this.validator.TestValidate(this.model);
 
             result.ShouldNotHaveValidationErrorFor("DroneId");
+        }
+
+        [Test]
+        public void Validate_MaxRoutesExceeded_ShouldFail()
+        {
+            this.model.Routes.Add(new RouteModel { Path = "AID" });
+            this.model.Routes.Add(new RouteModel { Path = "AIDAID" });
+            this.model.Routes.Add(new RouteModel { Path = "AIDAIDAID" });
+            this.model.Routes.Add(new RouteModel { Path = "AIDAIDAID" });
+
+            var result = this.validator.TestValidate(this.model);
+
+            result.ShouldHaveValidationErrorFor("Routes")
+                .WithErrorMessage($"Should have maximum {this.maxRoutes} routes");
+        }
+
+        [Test]
+        public void Validate_SameCountMaxRoutes_ShouldPass()
+        {
+            this.model.Routes.Add(new RouteModel { Path = "AID" });
+            this.model.Routes.Add(new RouteModel { Path = "AIDAID" });
+            this.model.Routes.Add(new RouteModel { Path = "AIDAIDAID" });
+
+            var result = this.validator.TestValidate(this.model);
+
+            result.ShouldNotHaveValidationErrorFor("Routes");
         }
     }
 }
