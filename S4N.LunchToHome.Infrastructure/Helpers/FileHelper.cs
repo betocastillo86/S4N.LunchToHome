@@ -6,6 +6,11 @@ namespace S4N.LunchToHome.Infrastructure.Helpers
     {
         public string[] GetContentFile(string path)
         {
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+
             return File.ReadAllLines(path);
         }
 

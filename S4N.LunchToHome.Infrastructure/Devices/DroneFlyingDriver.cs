@@ -27,7 +27,7 @@ namespace S4N.LunchToHome.Infrastructure.Devices
             {
                 case 'A':
                     newPosition = this.MoveForward(initialPosition);
-                    await Task.Delay(1);
+                    Task.Delay(500).Wait();
                     break;
 
                 case 'I':

@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using S4N.LunchToHome.Application;
 using S4N.LunchToHome.Application.Common;
+using S4N.LunchToHome.ConsoleApplication.Process;
 using S4N.LunchToHome.Domain.Entities;
-using S4N.LunchToHome.Domain.ValueObjects;
 using S4N.LunchToHome.Infrastructure;
 
 namespace S4N.LunchToHome.ConsoleApplication
@@ -19,6 +19,34 @@ namespace S4N.LunchToHome.ConsoleApplication
         private static void Main(string[] args)
         {
             RegisterDependencies();
+
+            StartSeeding();
+
+            ProcessDeliveries();
+        }
+
+        private static async void ProcessDeliveries()
+        {
+            try
+            {
+                var processDeliveryService = TheServiceProvider.GetService<IProcessDeliveryService>();
+                await processDeliveryService.ProcessAsync();
+            }
+            catch (Exception e)
+            {
+                var logger = TheServiceProvider.GetService<ILogger<Program>>();
+                logger.LogError(e, "Error processing deliveries");
+            }
+        }
+
+        private static void StartSeeding()
+        {
+            var drones = TheServiceProvider.GetService<IRepository<Drone>>();
+
+            for (int i = 1; i <= 20; i++)
+            {
+                drones.InsertAsync(new Drone { Id = Guid.NewGuid(), Name = i.ToString("00") });
+            }
         }
 
         private static void RegisterDependencies()
@@ -29,7 +57,13 @@ namespace S4N.LunchToHome.ConsoleApplication
                             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                             .Build();
 
-            serviceCollection.AddScoped<IConfiguration>((service) => Config);
+            serviceCollection.AddLogging(c =>
+            {
+                c.AddConsole();
+            });
+
+            serviceCollection.AddSingleton<IConfiguration>(Config);
+            serviceCollection.AddScoped<IProcessDeliveryService, ProcessDeliveryService>();
 
             serviceCollection.RegisterInfrastructure();
 

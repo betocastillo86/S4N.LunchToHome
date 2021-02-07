@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using S4N.LunchToHome.Application.Common;
 using S4N.LunchToHome.Application.Common.Devices;
 using S4N.LunchToHome.Application.Common.Exceptions;
@@ -18,14 +19,18 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
 
         private readonly IPublisher publisher;
 
+        private readonly ILogger<SendDeliveryCommandHandler> logger;
+
         public SendDeliveryCommandHandler(
             IDroneFlyingDriver droneFlyingDriver,
             IRepository<Delivery> deliveryRepository,
-            IPublisher publisher)
+            IPublisher publisher,
+            ILogger<SendDeliveryCommandHandler> logger)
         {
             this.droneFlyingDriver = droneFlyingDriver;
             this.deliveryRepository = deliveryRepository;
             this.publisher = publisher;
+            this.logger = logger;
         }
 
         public async Task<bool> Handle(SendDeliveryCommand request, CancellationToken cancellationToken)
@@ -36,6 +41,8 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
             {
                 throw new NotFoundException(request.DeliveryId);
             }
+
+            this.logger.LogInformation($"Process send delivery {request.DeliveryId}");
 
             var initialPosition = new Position(0, 0, Domain.Enums.Direction.North);
 
@@ -49,12 +56,15 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
                 catch (DroneFlyingException)
                 {
                     // do something to control delivery
+                    this.logger.LogError($"Can't process route {route.Path} on position {initialPosition}");
                     await this.droneFlyingDriver.ReturnToRestaurantAsync();
                     return false;
                 }
             }
 
             await this.publisher.Publish(new OnDeliverySentEvent { Position = initialPosition });
+
+            this.logger.LogInformation($"Deliver succesfully sent {request.DeliveryId}");
 
             return true;
         }
