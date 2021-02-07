@@ -3,5 +3,7 @@
     public interface IFileHelper
     {
         void WriteContentOnFile(string path, string content, string header = null);
+
+        string[] GetContentFile(string path);
     }
 }
