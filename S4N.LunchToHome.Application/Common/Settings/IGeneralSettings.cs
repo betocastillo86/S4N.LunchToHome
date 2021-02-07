@@ -3,5 +3,11 @@
     public interface IGeneralSettings
     {
         int MaxRoutesPerDrone { get; }
+
+        string InputFilePath { get; }
+
+        string OutputFilePath { get; }
+
+        string OutputHeaderText { get; }
     }
 }
