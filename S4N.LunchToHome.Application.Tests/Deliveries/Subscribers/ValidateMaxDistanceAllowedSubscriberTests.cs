@@ -3,10 +3,10 @@ using System.Threading;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using S4N.LunchToHome.Application.Common.Devices;
 using S4N.LunchToHome.Application.Common.Exceptions;
 using S4N.LunchToHome.Application.Common.Settings;
 using S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery;
+using S4N.LunchToHome.Application.Deliveries.Services;
 using S4N.LunchToHome.Application.Deliveries.Subscriber;
 using S4N.LunchToHome.Domain.Enums;
 using S4N.LunchToHome.Domain.ValueObjects;
@@ -20,7 +20,7 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Subscribers
 
         private Mock<IGeneralSettings> generalSettings;
 
-        private Mock<IDroneFlyingDriver> droneFlyingDriver;
+        private Mock<IMovementService> movementService;
 
         private Mock<ILogger<ValidateMaxDistanceAllowedSubscriber>> logger;
 
@@ -35,10 +35,10 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Subscribers
             this.eventObject = new OnRouteFinishedEvent() { Delivery = new Domain.Entities.Delivery { DroneId = Guid.NewGuid() } };
 
             this.generalSettings = new Mock<IGeneralSettings>();
-            this.droneFlyingDriver = new Mock<IDroneFlyingDriver>();
+            this.movementService = new Mock<IMovementService>();
             this.logger = new Mock<ILogger<ValidateMaxDistanceAllowedSubscriber>>();
 
-            this.subscriber = new ValidateMaxDistanceAllowedSubscriber(this.generalSettings.Object, this.droneFlyingDriver.Object, this.logger.Object);
+            this.subscriber = new ValidateMaxDistanceAllowedSubscriber(this.generalSettings.Object, this.movementService.Object, this.logger.Object);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Subscribers
             this.eventObject.NewPosition = new Position(x, 0, Direction.East);
 
             Assert.ThrowsAsync<MaxDistanceAllowedExceededException>(() => this.subscriber.Handle(this.eventObject, this.cancel));
-            this.droneFlyingDriver.Verify(c => c.ReturnToRestaurantAsync(), Times.Once);
+            this.movementService.Verify(c => c.ReturnToRestaurantAsync(), Times.Once);
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Subscribers
             this.eventObject.NewPosition = new Position(0, y, Direction.East);
 
             Assert.ThrowsAsync<MaxDistanceAllowedExceededException>(() => this.subscriber.Handle(this.eventObject, this.cancel));
-            this.droneFlyingDriver.Verify(c => c.ReturnToRestaurantAsync(), Times.Once);
+            this.movementService.Verify(c => c.ReturnToRestaurantAsync(), Times.Once);
         }
     }
 }

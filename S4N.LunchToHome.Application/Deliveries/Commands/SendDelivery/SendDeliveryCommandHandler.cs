@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using S4N.LunchToHome.Application.Common;
-using S4N.LunchToHome.Application.Common.Devices;
 using S4N.LunchToHome.Application.Common.Exceptions;
-using S4N.LunchToHome.Application.Common.Settings;
+using S4N.LunchToHome.Application.Deliveries.Services;
 using S4N.LunchToHome.Domain.Entities;
 using S4N.LunchToHome.Domain.ValueObjects;
 
@@ -15,7 +13,7 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
 {
     public class SendDeliveryCommandHandler : IRequestHandler<SendDeliveryCommand, bool>
     {
-        private readonly IDroneFlyingDriver droneFlyingDriver;
+        private readonly IMovementService movementService;
 
         private readonly IRepository<Delivery> deliveryRepository;
 
@@ -24,12 +22,12 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
         private readonly ILogger<SendDeliveryCommandHandler> logger;
 
         public SendDeliveryCommandHandler(
-            IDroneFlyingDriver droneFlyingDriver,
+            IMovementService movementService,
             IRepository<Delivery> deliveryRepository,
             IPublisher publisher,
             ILogger<SendDeliveryCommandHandler> logger)
         {
-            this.droneFlyingDriver = droneFlyingDriver;
+            this.movementService = movementService;
             this.deliveryRepository = deliveryRepository;
             this.publisher = publisher;
             this.logger = logger;
@@ -52,14 +50,14 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
             {
                 try
                 {
-                    position = await this.droneFlyingDriver.FlyPathAsync(position, route.Path);
+                    position = await this.movementService.FlyPathAsync(position, route.Path);
                     await this.publisher.Publish(new OnRouteFinishedEvent { Delivery = delivery, NewPosition = position });
                 }
-                catch (DroneFlyingException)
+                catch (ProcessPathException)
                 {
                     // do something to control delivery
                     this.logger.LogError($"Can't process route {route.Path} on position {position}");
-                    await this.droneFlyingDriver.ReturnToRestaurantAsync();
+                    await this.movementService.ReturnToRestaurantAsync();
                     return false;
                 }
             }

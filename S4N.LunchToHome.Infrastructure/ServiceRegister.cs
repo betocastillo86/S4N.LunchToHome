@@ -15,9 +15,9 @@ namespace S4N.LunchToHome.Infrastructure
     {
         public static void RegisterInfrastructure(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddScoped<IDroneDriver, DroneDriver>();
             serviceCollection.AddScoped<IFileHelper, FileHelper>();
             serviceCollection.AddScoped<IGeneralSettings, GeneralSettings>();
-            serviceCollection.AddScoped<IDroneFlyingDriver, DroneFlyingDriver>();
             serviceCollection.AddScoped(typeof(IRepository<>), typeof(MemoryRepository<>));
             serviceCollection.AddMediatR(Assembly.GetExecutingAssembly());
         }

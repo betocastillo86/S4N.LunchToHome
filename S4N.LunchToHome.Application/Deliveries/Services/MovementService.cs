@@ -4,10 +4,17 @@ using S4N.LunchToHome.Application.Common.Exceptions;
 using S4N.LunchToHome.Domain.Enums;
 using S4N.LunchToHome.Domain.ValueObjects;
 
-namespace S4N.LunchToHome.Infrastructure.Devices
+namespace S4N.LunchToHome.Application.Deliveries.Services
 {
-    public class DroneFlyingDriver : IDroneFlyingDriver
+    public class MovementService : IMovementService
     {
+        private readonly IDroneDriver droneDriver;
+
+        public MovementService(IDroneDriver droneDriver)
+        {
+            this.droneDriver = droneDriver;
+        }
+
         public async Task<Position> FlyPathAsync(Position initialPosition, string path)
         {
             return await this.MoveDroneToNextPosition(initialPosition, path);
@@ -27,19 +34,21 @@ namespace S4N.LunchToHome.Infrastructure.Devices
             {
                 case 'A':
                     newPosition = this.MoveForward(initialPosition);
-                    Task.Delay(500).Wait();
+                    await this.droneDriver.Move();
                     break;
 
                 case 'I':
                     newPosition = this.Turn(initialPosition, false);
+                    await this.droneDriver.Turn(false);
                     break;
 
                 case 'D':
                     newPosition = this.Turn(initialPosition, true);
+                    await this.droneDriver.Turn(true);
                     break;
 
                 default:
-                    throw new DroneFlyingException($"Invalid path {path}");
+                    throw new ProcessPathException($"Invalid path {path}");
             }
 
             if (path.Length == 1)
@@ -76,7 +85,7 @@ namespace S4N.LunchToHome.Infrastructure.Devices
                     break;
 
                 default:
-                    throw new DroneFlyingException($"Invalid direction on position {initialPosition}");
+                    throw new ProcessPathException($"Invalid direction on position {initialPosition}");
             }
 
             return new Position(x, y, initialPosition.Direction);
@@ -105,7 +114,7 @@ namespace S4N.LunchToHome.Infrastructure.Devices
                     break;
 
                 default:
-                    throw new DroneFlyingException($"Invalid direction on position {initialPosition}");
+                    throw new ProcessPathException($"Invalid direction on position {initialPosition}");
             }
 
             return new Position(initialPosition.X, initialPosition.Y, newDirection);

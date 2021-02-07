@@ -1,21 +1,27 @@
 ﻿using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
+using S4N.LunchToHome.Application.Common.Devices;
 using S4N.LunchToHome.Application.Common.Exceptions;
+using S4N.LunchToHome.Application.Deliveries.Services;
 using S4N.LunchToHome.Domain.Enums;
 using S4N.LunchToHome.Domain.ValueObjects;
-using S4N.LunchToHome.Infrastructure.Devices;
 
-namespace S4N.LunchToHome.Infrastructure.Tests.Devices
+namespace S4N.LunchToHome.Application.Tests.Deliveries.Services
 {
     [TestFixture]
-    public class DroneFlyingDriverTests
+    public class MovementServiceTests
     {
-        private DroneFlyingDriver service;
+        private MovementService service;
+
+        private Mock<IDroneDriver> droneDriver;
 
         [SetUp]
         public void SetUp()
         {
-            this.service = new DroneFlyingDriver();
+            this.droneDriver = new Mock<IDroneDriver>();
+
+            this.service = new MovementService(this.droneDriver.Object);
         }
 
         [Test]
@@ -24,7 +30,7 @@ namespace S4N.LunchToHome.Infrastructure.Tests.Devices
             var position = new Position(0, 0, Direction.East);
             var path = "z";
 
-            Assert.ThrowsAsync<DroneFlyingException>(() => this.service.FlyPathAsync(position, path));
+            Assert.ThrowsAsync<ProcessPathException>(() => this.service.FlyPathAsync(position, path));
         }
 
         [Test]
@@ -119,10 +125,8 @@ namespace S4N.LunchToHome.Infrastructure.Tests.Devices
         [TestCase("AAIADAD", -3, 3, Direction.South, -4, 2, Direction.East)]
         public async Task FlyPathAsync_FollowS4NTestCases_MoveToValidDirection(string path, int xFrom, int yFrom, Direction dirFrom, int xTo, int yTo, Direction dirTo)
         {
-            var from = new Position(xFrom, yFrom, dirFrom);
-
-            var newPosition = await this.service.FlyPathAsync(from, path);
-
+            var from = new Position(xFrom, yFrom, dirFrom)
+            var newPosition = await this.service.FlyPathAsync(from, path)
             Assert.AreEqual(xTo, newPosition.X);
             Assert.AreEqual(yTo, newPosition.Y);
             Assert.AreEqual(dirTo, newPosition.Direction);

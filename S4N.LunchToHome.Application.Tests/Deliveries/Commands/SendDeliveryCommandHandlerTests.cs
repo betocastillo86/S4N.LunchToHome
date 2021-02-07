@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using S4N.LunchToHome.Application.Common;
-using S4N.LunchToHome.Application.Common.Devices;
 using S4N.LunchToHome.Application.Common.Exceptions;
 using S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery;
+using S4N.LunchToHome.Application.Deliveries.Services;
 using S4N.LunchToHome.Domain.Entities;
 using S4N.LunchToHome.Domain.ValueObjects;
 
@@ -27,7 +27,7 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
 
         private Mock<IRepository<Delivery>> deliveryRepository;
 
-        private Mock<IDroneFlyingDriver> droneFlyingDriver;
+        private Mock<IMovementService> movementService;
 
         private Mock<IPublisher> publisher;
 
@@ -45,14 +45,14 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
             this.deliveries = new List<Delivery>();
 
             this.deliveryRepository = new Mock<IRepository<Delivery>>();
-            this.droneFlyingDriver = new Mock<IDroneFlyingDriver>();
+            this.movementService = new Mock<IMovementService>();
             this.publisher = new Mock<IPublisher>();
             this.logger = new Mock<ILogger<SendDeliveryCommandHandler>>();
 
             this.deliveryRepository.SetupGet(c => c.Items)
                 .Returns(() => this.deliveries.AsQueryable());
 
-            this.handler = new SendDeliveryCommandHandler(this.droneFlyingDriver.Object, this.deliveryRepository.Object, this.publisher.Object, this.logger.Object);
+            this.handler = new SendDeliveryCommandHandler(this.movementService.Object, this.deliveryRepository.Object, this.publisher.Object, this.logger.Object);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
             var finalPosition = new Position(10, 10, Domain.Enums.Direction.East);
             this.request.DeliveryId = Guid.NewGuid();
 
-            this.droneFlyingDriver.Setup(c => c.FlyPathAsync(It.IsAny<Position>(), "A"))
+            this.movementService.Setup(c => c.FlyPathAsync(It.IsAny<Position>(), "A"))
                 .ReturnsAsync(() => finalPosition);
 
             var delivery = new Delivery
@@ -98,8 +98,8 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
         {
             this.request.DeliveryId = Guid.NewGuid();
 
-            this.droneFlyingDriver.Setup(c => c.FlyPathAsync(It.IsAny<Position>(), It.IsAny<string>()))
-                .ThrowsAsync(new DroneFlyingException());
+            this.movementService.Setup(c => c.FlyPathAsync(It.IsAny<Position>(), It.IsAny<string>()))
+                .ThrowsAsync(new ProcessPathException());
 
             var delivery = new Delivery
             {
@@ -116,7 +116,7 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
 
             var result = await this.handler.Handle(this.request, this.cancel);
 
-            this.droneFlyingDriver.Verify(c => c.ReturnToRestaurantAsync(), Times.Once);
+            this.movementService.Verify(c => c.ReturnToRestaurantAsync(), Times.Once);
             this.publisher.Verify(c => c.Publish(It.IsAny<OnDeliverySentEvent>(), this.cancel), Times.Never);
 
             Assert.IsFalse(result);

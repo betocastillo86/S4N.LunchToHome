@@ -2,14 +2,14 @@
 
 namespace S4N.LunchToHome.Application.Common.Exceptions
 {
-    public class DroneFlyingException : Exception
+    public class ProcessPathException : Exception
     {
-        public DroneFlyingException()
+        public ProcessPathException()
         {
 
         }
 
-        public DroneFlyingException(string message)
+        public ProcessPathException(string message)
             : base(message)
         {
         }
