@@ -22,5 +22,13 @@ namespace S4N.LunchToHome.Application.Common.Exceptions
         }
 
         public IDictionary<string, string[]> Errors { get; }
+
+        public string ErrorsString
+        {
+            get
+            {
+                return string.Join("\n", this.Errors.Select(c => string.Concat(c.Key, ": ", string.Join(",", c.Value))));
+            }
+        }
     }
 }

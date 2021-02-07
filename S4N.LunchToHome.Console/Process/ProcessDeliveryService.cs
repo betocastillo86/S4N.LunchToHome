@@ -62,7 +62,7 @@ namespace S4N.LunchToHome.ConsoleApplication.Process
                 }
                 catch (S4N.LunchToHome.Application.Common.Exceptions.ValidationException e)
                 {
-                    this.logger.LogError(e, $"Validation errors processing delivery");
+                    this.logger.LogError(e, $"Validation errors sending delivery");
                 }
             };
 
@@ -82,8 +82,15 @@ namespace S4N.LunchToHome.ConsoleApplication.Process
 
                 if (routes != null)
                 {
-                    var devId = await this.sender.Send(new CreateDeliveryCommand { DroneId = drone.Id, Routes = routes.Select(c => new RouteModel { Path = c }).ToList() });
-                    deliveries.Add(devId);
+                    try
+                    {
+                        var devId = await this.sender.Send(new CreateDeliveryCommand { DroneId = drone.Id, Routes = routes.Select(c => new RouteModel { Path = c }).ToList() });
+                        deliveries.Add(devId);
+                    }
+                    catch (S4N.LunchToHome.Application.Common.Exceptions.ValidationException e)
+                    {
+                        this.logger.LogError(e, $"Validation errors creating delivery {e.ErrorsString}");
+                    }
                 }
             }
 
