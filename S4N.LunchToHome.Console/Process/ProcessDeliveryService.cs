@@ -60,6 +60,10 @@ namespace S4N.LunchToHome.ConsoleApplication.Process
                 {
                     this.logger.LogError(e, $"Delivery not found {deliveryId}");
                 }
+                catch (S4N.LunchToHome.Application.Common.Exceptions.MaxDistanceAllowedExceededException e)
+                {
+                    this.logger.LogError(e, $"Drone exceeded distance limit");
+                }
                 catch (S4N.LunchToHome.Application.Common.Exceptions.ValidationException e)
                 {
                     this.logger.LogError(e, $"Validation errors sending delivery");
@@ -84,8 +88,8 @@ namespace S4N.LunchToHome.ConsoleApplication.Process
                 {
                     try
                     {
-                        var devId = await this.sender.Send(new CreateDeliveryCommand { DroneId = drone.Id, Routes = routes.Select(c => new RouteModel { Path = c }).ToList() });
-                        deliveries.Add(devId);
+                        var deliveryId = await this.sender.Send(new CreateDeliveryCommand { DroneId = drone.Id, Routes = routes.Select(c => new RouteModel { Path = c }).ToList() });
+                        deliveries.Add(deliveryId);
                     }
                     catch (S4N.LunchToHome.Application.Common.Exceptions.ValidationException e)
                     {

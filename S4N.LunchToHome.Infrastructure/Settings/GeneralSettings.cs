@@ -15,6 +15,8 @@ namespace S4N.LunchToHome.Infrastructure.Settings
 
         public int MaxRoutesPerDrone => Convert.ToInt32(this.configuration["MaxRoutesPerDrone"]);
 
+        public int MaxDistanceAllowed => Convert.ToInt32(this.configuration["MaxDistanceAllowed"]);
+
         public string InputFilePath => this.configuration["InputFilePath"];
 
         public string OutputFilePath => this.configuration["OutputFilePath"];

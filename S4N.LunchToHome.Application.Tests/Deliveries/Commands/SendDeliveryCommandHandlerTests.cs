@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using S4N.LunchToHome.Application.Common;
@@ -30,6 +31,8 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
 
         private Mock<IPublisher> publisher;
 
+        private Mock<ILogger<SendDeliveryCommandHandler>> logger;
+
         private CancellationToken cancel;
 
         [SetUp]
@@ -44,11 +47,12 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Commands
             this.deliveryRepository = new Mock<IRepository<Delivery>>();
             this.droneFlyingDriver = new Mock<IDroneFlyingDriver>();
             this.publisher = new Mock<IPublisher>();
+            this.logger = new Mock<ILogger<SendDeliveryCommandHandler>>();
 
             this.deliveryRepository.SetupGet(c => c.Items)
                 .Returns(() => this.deliveries.AsQueryable());
 
-            this.handler = new SendDeliveryCommandHandler(this.droneFlyingDriver.Object, this.deliveryRepository.Object, this.publisher.Object);
+            this.handler = new SendDeliveryCommandHandler(this.droneFlyingDriver.Object, this.deliveryRepository.Object, this.publisher.Object, this.logger.Object);
         }
 
         [Test]

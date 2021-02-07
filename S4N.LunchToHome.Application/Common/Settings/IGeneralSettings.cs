@@ -4,6 +4,8 @@
     {
         int MaxRoutesPerDrone { get; }
 
+        int MaxDistanceAllowed { get; }
+
         string InputFilePath { get; }
 
         string OutputFilePath { get; }
