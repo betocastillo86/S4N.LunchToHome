@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\S4N.LunchToHome.Application\S4N.LunchToHome.Application.csproj" />
+    <ProjectReference Include="..\S4N.LunchToHome.Domain\S4N.LunchToHome.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

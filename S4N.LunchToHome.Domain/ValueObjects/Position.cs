@@ -16,5 +16,10 @@ namespace S4N.LunchToHome.Domain.ValueObjects
         public long Y { get; private set; }
 
         public Direction Direction { get; private set; }
+
+        public override string ToString()
+        {
+            return $"X:{this.X}, Y:{this.Y}, Direction:{this.Direction}";
+        }
     }
 }

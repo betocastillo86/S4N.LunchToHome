@@ -46,7 +46,7 @@ namespace S4N.LunchToHome.Application.Deliveries.Commands.SendDelivery
                     initialPosition = await this.droneFlyingDriver.FlyPathAsync(initialPosition, route.Path);
                     await this.publisher.Publish(new OnRouteFinishedEvent { Delivery = delivery, NewPosition = initialPosition });
                 }
-                catch (DroneFlyingException e)
+                catch (DroneFlyingException)
                 {
                     // do something to control delivery
                     await this.droneFlyingDriver.ReturnToRestaurantAsync();
