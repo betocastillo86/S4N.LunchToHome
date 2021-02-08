@@ -125,8 +125,8 @@ namespace S4N.LunchToHome.Application.Tests.Deliveries.Services
         [TestCase("AAIADAD", -3, 3, Direction.South, -4, 2, Direction.East)]
         public async Task FlyPathAsync_FollowS4NTestCases_MoveToValidDirection(string path, int xFrom, int yFrom, Direction dirFrom, int xTo, int yTo, Direction dirTo)
         {
-            var from = new Position(xFrom, yFrom, dirFrom)
-            var newPosition = await this.service.FlyPathAsync(from, path)
+            var from = new Position(xFrom, yFrom, dirFrom);
+            var newPosition = await this.service.FlyPathAsync(from, path);
             Assert.AreEqual(xTo, newPosition.X);
             Assert.AreEqual(yTo, newPosition.Y);
             Assert.AreEqual(dirTo, newPosition.Direction);
